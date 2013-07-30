@@ -1,0 +1,40 @@
+﻿<%@ Assembly Name="SchemaExplorer" %>
+<%@ Import Namespace="SchemaExplorer" %>
+<%@ Import Namespace="CodeSmith.Core.Extensions" %>
+<%@ Template Language="C#" TargetLanguage="C#" Debug="False" %>
+<%@ Property Name="DataBase" Type="SchemaExplorer.DatabaseSchema" Category="DataSource" Optional="False" Description="Database" %>
+<%@ Property Name="Namespace" Type="String" Category="Code" Optional="True" %>
+<%@ Property Name="ContextName" Type="String" Category="Code" Optional="True" %>
+
+<% Namespace = String.IsNullOrWhiteSpace(Namespace) ? "Entities" : Namespace; %>
+<% ContextName = String.IsNullOrWhiteSpace(ContextName) ? DataBase.Name.ToCSharpIdentifier().ToPascalCase() + "Context" : ContextName; %>
+
+namespace <%= Namespace %>
+{
+    using System;
+    using System.Data.Entity;
+    using System.Data.Entity.Infrastructure;
+    
+    public class <%= ContextName %> : DbContext
+    {
+    
+        public <%= ContextName %>()
+            : base("name=<%= ContextName %>")
+        {
+        }
+        
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            throw new UnintentionalCodeFirstException();
+        }
+        
+        <% foreach (var table in DataBase.Tables) { %>
+        <% var className = table.Name.ToCSharpIdentifier().ToPascalCase(); %>
+        /// <summary>
+        /// Obtiene todos los registros de la tabla <strong><%= table.Name %></strong>
+        /// <summary>
+        public DbSet<<%= className %>> <%= className %> { get; set; }
+        
+        <% } %>
+    }
+}
