@@ -1,13 +1,19 @@
 ﻿<%@ Assembly Name="SchemaExplorer" %>
 <%@ Import Namespace="SchemaExplorer" %>
 <%@ Import Namespace="CodeSmith.Core.Extensions" %>
-<%@ Template Language="C#" TargetLanguage="C#" Debug="False" %>
+<%@ Import Namespace="System.Text.RegularExpressions" %>
+<%@ Template Language="C#" TargetLanguage="C#" Debug="True" %>
 <%@ Property Name="DataBase" Type="SchemaExplorer.DatabaseSchema" Category="DataSource" Optional="False" Description="Database" %>
 <%@ Property Name="Namespace" Type="String" Category="Code" Optional="True" %>
 <%@ Property Name="ContextName" Type="String" Category="Code" Optional="True" %>
 
-<% Namespace = String.IsNullOrWhiteSpace(Namespace) ? "Entities" : Namespace; %>
-<% ContextName = String.IsNullOrWhiteSpace(ContextName) ? DataBase.Name.ToCSharpIdentifier().ToPascalCase() + "Context" : ContextName; %>
+<%
+Namespace = String.IsNullOrWhiteSpace(Namespace) ? "Entities" : Namespace; 
+if (String.IsNullOrWhiteSpace(ContextName)) { 
+    var match = Regex.Match(DataBase.Name, @"\((.*?)\)");
+    ContextName = (match.Success ? match.Groups[1].Value : DataBase.Name).ToCSharpIdentifier().ToPascalCase() + "Context";
+}    
+%>
 
 namespace <%= Namespace %>
 {
