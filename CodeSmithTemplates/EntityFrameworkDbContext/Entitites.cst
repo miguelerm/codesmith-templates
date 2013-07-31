@@ -58,48 +58,48 @@ CheckOutputDirectory();
 
 foreach (var table in DataBase.Tables)
 {
-    var partialfileName = GetEntityName(table.Name) + ".cs";
+    var partialfileName = Path.Combine(OutputDirectory, GetEntityName(table.Name) + ".cs");
     
-    if (!File.Exists(Path.Combine(OutputDirectory, partialfileName)))
+    if (!File.Exists(partialfileName))
     {
         var partialEntityTemplate = this.Create<PartialEntityTemplate>();
         
         partialEntityTemplate.Table = table;
         partialEntityTemplate.EntitiesNamespace = EntitiesNamespace;
         
-        partialEntityTemplate.RenderToFile(Path.Combine(OutputDirectory, partialfileName), true);
+        partialEntityTemplate.RenderToFile(partialfileName, true);
         Response.WriteLine("Entity " + partialfileName + " generated...");
     }
     
-    var classfileName = GetEntityName(table.Name) + ".generated.cs";
+    var classfileName = Path.Combine(OutputDirectory, GetEntityName(table.Name) + ".generated.cs");
     var entityTemplate = this.Create<EntityTemplate>();
     
     entityTemplate.Table = table;
     entityTemplate.EntitiesNamespace = EntitiesNamespace;
     
-    entityTemplate.RenderToFile(Path.Combine(OutputDirectory, classfileName), true);
+    entityTemplate.RenderToFile(classfileName, partialfileName, true);
     Response.WriteLine("Entity " + classfileName + " generated...");
 }
 
-var dbContextPartialClassFile = ContextName + ".cs";
-if (!File.Exists(Path.Combine(OutputDirectory, dbContextPartialClassFile)))
+var dbContextPartialClassFile = Path.Combine(OutputDirectory, ContextName + ".cs");
+if (!File.Exists(dbContextPartialClassFile))
 {
     var dbContextPartialTemplate = this.Create<PartialDbContextTemplate>();
 
     dbContextPartialTemplate.DataBase = DataBase;
     dbContextPartialTemplate.Namespace = EntitiesNamespace;
     dbContextPartialTemplate.ContextName = ContextName;
-    dbContextPartialTemplate.RenderToFile(Path.Combine(OutputDirectory, dbContextPartialClassFile), true);
+    dbContextPartialTemplate.RenderToFile(dbContextPartialClassFile, true);
     Response.WriteLine("Context " + dbContextPartialClassFile + " generated...");
 }
 
-var dbContextClassFile = ContextName + ".generated.cs";
+var dbContextClassFile = Path.Combine(OutputDirectory, ContextName + ".generated.cs");
 var dbContextTemplate = this.Create<DbContextTemplate>();
 
 dbContextTemplate.DataBase = DataBase;
 dbContextTemplate.Namespace = EntitiesNamespace;
 dbContextTemplate.ContextName = ContextName;
-dbContextTemplate.RenderToFile(Path.Combine(OutputDirectory, dbContextClassFile), true);
+dbContextTemplate.RenderToFile(dbContextClassFile, dbContextPartialClassFile, true);
 Response.WriteLine("Context " + dbContextClassFile + " generated...");
 
 %>
