@@ -2,7 +2,7 @@
 <codeSmith xmlns="http://www.codesmithtools.com/schema/csp.xsd">
   <defaultTemplate path="Entitites.cst" />
   <variables>
-    <add key="ConnectionString1" value="data source=XE;user id=ALMACEN;password=ALMACEN" />
+    <add key="ConnectionString1" value="data source=Server;user id=user;password=pass" />
   </variables>
   <propertySets>
     <propertySet name="Entitites" template="Entitites.cst">
@@ -11,7 +11,7 @@
         <connectionString>$(ConnectionString1)</connectionString>
         <providerType>SchemaExplorer.OracleSchemaProvider,SchemaExplorer.OracleSchemaProvider</providerType>
       </property>
-      <property name="EntitiesNamespace">Minfin.Sigaf.Entities</property>
+      <property name="EntitiesNamespace">Company.Project.Entities</property>
       <property name="ContextName">AlmacenesDbContext</property>
     </propertySet>
   </propertySets>

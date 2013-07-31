@@ -48,7 +48,7 @@
     <None Include="PartialDbContextTemplate.cst" />
     <None Include="DbContextTemplate.cst" />
     <None Include="EFContext.csp">
-      <HideOutputs>True</HideOutputs>
+      <HideOutputs>False</HideOutputs>
     </None>
     <None Include="EntityTemplate.cst" />
     <None Include="Entitites.cst" />
