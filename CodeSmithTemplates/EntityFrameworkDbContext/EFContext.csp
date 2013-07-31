@@ -1,4 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <codeSmith xmlns="http://www.codesmithtools.com/schema/csp.xsd">
-  <propertySets />
+  <defaultTemplate path="Entitites.cst" />
+  <variables>
+    <add key="ConnectionString1" value="data source=XE;user id=ALMACEN;password=ALMACEN" />
+  </variables>
+  <propertySets>
+    <propertySet name="Entitites" template="Entitites.cst">
+      <property name="OutputDirectory">.\</property>
+      <property name="DataBase">
+        <connectionString>$(ConnectionString1)</connectionString>
+        <providerType>SchemaExplorer.OracleSchemaProvider,SchemaExplorer.OracleSchemaProvider</providerType>
+      </property>
+      <property name="EntitiesNamespace">Minfin.Sigaf.Entities</property>
+      <property name="ContextName">AlmacenesDbContext</property>
+    </propertySet>
+  </propertySets>
 </codeSmith>
