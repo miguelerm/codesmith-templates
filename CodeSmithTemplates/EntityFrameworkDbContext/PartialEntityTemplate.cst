@@ -1,0 +1,31 @@
+﻿<%@ Template Language="C#" TargetLanguage="C#" Debug="True" %>
+
+<%@ Assembly Name="SchemaExplorer" %>
+
+<%@ Import Namespace="SchemaExplorer" %>
+<%@ Import Namespace="CodeSmith.Core.Extensions" %>
+<%@ Import Namespace="System.Text.RegularExpressions" %>
+<%@ Import Namespace="System.Linq" %>
+
+<%@ Property Name="Table" Type="SchemaExplorer.TableSchema" Category="DataSource" Optional="False" Description="Database Table" %>
+<%@ Property Name="EntitiesNamespace" Type="String" Category="Code" Optional="True" %>
+<%
+EntitiesNamespace = String.IsNullOrWhiteSpace(EntitiesNamespace) ? "Entities" : EntitiesNamespace;
+var className = GetEntityName(Table.Name);
+%>
+<script runat="template">
+
+    private string GetEntityName(string name)
+    {
+        return name.ToCSharpIdentifier().ToPascalCase();
+    }
+    
+</script>
+namespace <%= EntitiesNamespace %>
+{
+
+    public partial class <%= className %>
+    {
+
+    }
+}

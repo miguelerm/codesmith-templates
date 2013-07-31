@@ -8,7 +8,9 @@
 <%@ Import Namespace="SchemaExplorer" %>
 
 <%@ Register Name="EntityTemplate" Template="EntityTemplate.cst" %>
+<%@ Register Name="PartialEntityTemplate" Template="PartialEntityTemplate.cst" %>
 <%@ Register Name="DbContextTemplate" Template="DbContextTemplate.cst" %>
+<%@ Register Name="PartialDbContextTemplate" Template="PartialDbContextTemplate.cst" %>
 
 <%@ Property Name="DataBase" Type="SchemaExplorer.DatabaseSchema" Category="DataSource" Optional="False" Description="Database" %>
 <%@ Property Name="EntitiesNamespace" Type="String" Category="Code" Optional="True" %>
@@ -56,22 +58,38 @@ CheckOutputDirectory();
 
 foreach (var table in DataBase.Tables)
 {
+    var partialfileName = GetEntityName(table.Name) + ".cs";
     var classfileName = GetEntityName(table.Name) + ".generated.cs";
     var entityTemplate = this.Create<EntityTemplate>();
+    var partialEntityTemplate = this.Create<PartialEntityTemplate>();
+    
     entityTemplate.Table = table;
     entityTemplate.EntitiesNamespace = EntitiesNamespace;
+    
+    partialEntityTemplate.Table = table;
+    partialEntityTemplate.EntitiesNamespace = EntitiesNamespace;
+    
+    partialEntityTemplate.RenderToFile(Path.Combine(OutputDirectory, partialfileName), true);
     entityTemplate.RenderToFile(Path.Combine(OutputDirectory, classfileName), true);
-    Response.WriteLine("Entity " + classfileName + " generated...");
+    Response.WriteLine("Entity " + partialfileName + " generated...");
 }
 
+var dbContextPartialClassFile = ContextName + ".cs";
 var dbContextClassFile = ContextName + ".generated.cs";
+var dbContextPartialTemplate = this.Create<PartialDbContextTemplate>();
 var dbContextTemplate = this.Create<DbContextTemplate>();
+
+dbContextPartialTemplate.DataBase = DataBase;
+dbContextPartialTemplate.Namespace = EntitiesNamespace;
+dbContextPartialTemplate.ContextName = ContextName;
+dbContextPartialTemplate.RenderToFile(Path.Combine(OutputDirectory, dbContextPartialClassFile), true);
 
 dbContextTemplate.DataBase = DataBase;
 dbContextTemplate.Namespace = EntitiesNamespace;
 dbContextTemplate.ContextName = ContextName;
 dbContextTemplate.RenderToFile(Path.Combine(OutputDirectory, dbContextClassFile), true);
-Response.WriteLine("Context " + dbContextClassFile + " generated...");
+
+Response.WriteLine("Context " + dbContextPartialClassFile + " generated...");
 
 %>
 
