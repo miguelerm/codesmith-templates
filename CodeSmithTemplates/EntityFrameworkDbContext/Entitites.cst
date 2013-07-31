@@ -1,0 +1,77 @@
+﻿<%@ Template Language="C#" TargetLanguage="C#" Debug="False" %>
+
+<%@ Assembly Name="SchemaExplorer" %>
+
+<%@ Import Namespace="System.IO" %>
+<%@ Import Namespace="System.Linq" %>
+<%@ Import Namespace="System.Text.RegularExpressions" %>
+<%@ Import Namespace="SchemaExplorer" %>
+
+<%@ Register Name="EntityTemplate" Template="EntityTemplate.cst" %>
+<%@ Register Name="DbContextTemplate" Template="DbContextTemplate.cst" %>
+
+<%@ Property Name="DataBase" Type="SchemaExplorer.DatabaseSchema" Category="DataSource" Optional="False" Description="Database" %>
+<%@ Property Name="EntitiesNamespace" Type="String" Category="Code" Optional="True" %>
+<%@ Property Name="ContextName" Type="String" Category="Code" Optional="True" %>
+<%@ Property Name="OutputDirectory" Type="System.String" Category="Files" Default=".\" Optional="True" Description="The folder to save the generated entity files." Editor="System.Windows.Forms.Design.FolderNameEditor, System.Design" %>
+
+<script runat="template">
+
+    private string GetEntityName(string name)
+    {
+        return name.ToCSharpIdentifier().ToPascalCase();
+    }
+    
+    private void CheckContextName()
+    {
+        if (String.IsNullOrWhiteSpace(ContextName)) { 
+            var match = Regex.Match(DataBase.Name, @"\((.*?)\)");
+            ContextName = (match.Success ? match.Groups[1].Value : DataBase.Name).ToCSharpIdentifier().ToPascalCase() + "DbContext";
+        }
+    }
+    
+    private void CheckEntitiesNamespace()
+    {
+        if (String.IsNullOrWhiteSpace(EntitiesNamespace))
+        {
+            EntitiesNamespace = "Entities"; 
+        }
+    }
+    
+    private void CheckOutputDirectory()
+    {
+        if (!Directory.Exists(this.OutputDirectory))
+        {
+            Directory.CreateDirectory(this.OutputDirectory);
+        }
+    }
+    
+</script>
+
+<%
+    
+CheckContextName();
+CheckEntitiesNamespace();
+CheckOutputDirectory();
+
+foreach (var table in DataBase.Tables)
+{
+    var classfileName = GetEntityName(table.Name) + ".generated.cs";
+    var entityTemplate = this.Create<EntityTemplate>();
+    entityTemplate.Table = table;
+    entityTemplate.EntitiesNamespace = EntitiesNamespace;
+    entityTemplate.RenderToFile(Path.Combine(OutputDirectory, classfileName), true);
+    Response.WriteLine("Entity " + classfileName + " generated...");
+}
+
+var dbContextClassFile = ContextName + ".generated.cs";
+var dbContextTemplate = this.Create<DbContextTemplate>();
+
+dbContextTemplate.DataBase = DataBase;
+dbContextTemplate.Namespace = EntitiesNamespace;
+dbContextTemplate.ContextName = ContextName;
+dbContextTemplate.RenderToFile(Path.Combine(OutputDirectory, dbContextClassFile), true);
+Response.WriteLine("Context " + dbContextClassFile + " generated...");
+
+%>
+
